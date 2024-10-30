@@ -1,0 +1,364 @@
+metawrap quant_bins -b /home/dongbiao/hanzewen/metagenome/metawrap/temp/drep/dereplicated_genomes -t 28 -o /home/dongbiao/hanzewen/metagenome/metawrap/temp/bin_quant -a /home/dongbiao/hanzewen/metagenome/metawrap/temp/megahit/final.contigs.fa /home/dongbiao/hanzewen/metagenome/move_host/a_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/A_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/a_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/A_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/b_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/B_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/b_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/B_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/e_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/E_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/e_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/E_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/f_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/F_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/f_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/F_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/FN_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/FN_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/g_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/G_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/g_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/G_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/h_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/H_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/h_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/H_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/i_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/I_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/i_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/I_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/q_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/Q_1.fastq /home/dongbiao/hanzewen/metagenome/move_host/q_2.fastq /home/dongbiao/hanzewen/metagenome/move_host/Q_2.fastq
+
+------------------------------------------------------------------------------------------------------------------------
+-----                                 17 forward and 17 reverse read files detected                                -----
+------------------------------------------------------------------------------------------------------------------------
+
+
+########################################################################################################################
+#####                                    SETTING UP OUTPUT AND INDEXING ASSEMBLY                                   #####
+########################################################################################################################
+
+
+------------------------------------------------------------------------------------------------------------------------
+-----                            Indexing assembly file with salmon. Ignore any warnings                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+########################################################################################################################
+#####                           ALIGNING READS FROM ALL SAMPLES BACK TO BINS WITH SALMON                           #####
+########################################################################################################################
+
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample a with reads /home/dongbiao/hanzewen/metagenome/move_host/a_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/a_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample A with reads /home/dongbiao/hanzewen/metagenome/move_host/A_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/A_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample b with reads /home/dongbiao/hanzewen/metagenome/move_host/b_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/b_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample B with reads /home/dongbiao/hanzewen/metagenome/move_host/B_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/B_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample e with reads /home/dongbiao/hanzewen/metagenome/move_host/e_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/e_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample E with reads /home/dongbiao/hanzewen/metagenome/move_host/E_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/E_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample f with reads /home/dongbiao/hanzewen/metagenome/move_host/f_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/f_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample F with reads /home/dongbiao/hanzewen/metagenome/move_host/F_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/F_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----            processing sample FN with reads /home/dongbiao/hanzewen/metagenome/move_host/FN_1.fastq           -----
+-----                        and /home/dongbiao/hanzewen/metagenome/move_host/FN_2.fastq...                        -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample g with reads /home/dongbiao/hanzewen/metagenome/move_host/g_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/g_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample G with reads /home/dongbiao/hanzewen/metagenome/move_host/G_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/G_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample h with reads /home/dongbiao/hanzewen/metagenome/move_host/h_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/h_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample H with reads /home/dongbiao/hanzewen/metagenome/move_host/H_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/H_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample i with reads /home/dongbiao/hanzewen/metagenome/move_host/i_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/i_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample I with reads /home/dongbiao/hanzewen/metagenome/move_host/I_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/I_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample q with reads /home/dongbiao/hanzewen/metagenome/move_host/q_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/q_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----           processing sample Q with reads /home/dongbiao/hanzewen/metagenome/move_host/Q_1.fastq and          -----
+-----                          /home/dongbiao/hanzewen/metagenome/move_host/Q_2.fastq...                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+Version Info: ### PLEASE UPGRADE SALMON ###
+### A newer version of salmon with important bug fixes and improvements is available. ####
+###
+The newest version, available at https://github.com/COMBINE-lab/salmon/releases
+contains new features, improvements, and bug fixes; please upgrade at your
+earliest convenience.
+###
+Sign up for the salmon mailing list to hear about new versions, features and updates at:
+https://oceangenomics.com/subscribe
+###
+
+------------------------------------------------------------------------------------------------------------------------
+-----                                           summarize salmon files...                                          -----
+------------------------------------------------------------------------------------------------------------------------
+
+"A.quant.counts",
+"B.quant.counts",
+"E.quant.counts",
+"F.quant.counts",
+"FN.quant.counts",
+"G.quant.counts",
+"H.quant.counts",
+"I.quant.counts",
+"Q.quant.counts",
+"a.quant.counts",
+"b.quant.counts",
+"e.quant.counts",
+"f.quant.counts",
+"g.quant.counts",
+"h.quant.counts",
+"i.quant.counts",
+"q.quant.counts"
+
+########################################################################################################################
+#####                                   EXTRACTING AVERAGE ABUNDANCE OF EACH BIN                                   #####
+########################################################################################################################
+
+
+------------------------------------------------------------------------------------------------------------------------
+-----                            There were 17 samples detected. Making abundance table!                           -----
+------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------
+-----                                     Average bin abundance table stored in                                    -----
+-----                /home/dongbiao/hanzewen/metagenome/metawrap/temp/bin_quant/abundance_table.tab                -----
+------------------------------------------------------------------------------------------------------------------------
+
+
+########################################################################################################################
+#####                                 MAKING GENOME ABUNDANCE HEATMAP WITH SEABORN                                 #####
+########################################################################################################################
+
+
+------------------------------------------------------------------------------------------------------------------------
+-----                                          making heatmap with Seaborn                                         -----
+------------------------------------------------------------------------------------------------------------------------
+
+loading libs...
+loading abundance data...
+drawing clustermap...
+
+------------------------------------------------------------------------------------------------------------------------
+-----                                                cleaning up...                                                -----
+------------------------------------------------------------------------------------------------------------------------
+
+
+########################################################################################################################
+#####                                 QUANT_BINS PIPELINE SUCCESSFULLY FINISHED!!!                                 #####
+########################################################################################################################
+
