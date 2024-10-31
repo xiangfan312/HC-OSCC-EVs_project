@@ -1,0 +1,319 @@
+1.用了三个软件及PITA，miranda,TargetScan.
+    ①其中miRanda 主要强调 miRNA 与靶基因连接位点的进化保守性，亦偏重于以 miRNA 的5′ 端序列搜索靶基因，并采用 RNAFold 计算热力学稳定性
+    ②TargetScan，主要通过搜索和每条miRNA种子区域匹配的保守的8mer和7mer位点来预测靶基因，种子区域是指靶位点 RNA 的一个小片段，通常是 2-8 个核苷酸，它与 miRNA 的种子序列互补。7mer和8mer表示碱基的的数量。
+    ③PITA基于靶位点的可接性(target-site accessibility)和自由能预测miRNA 的靶标。
+2.对三个软件的结果取交集，对取交集的结果计算pearson相关性，对跑出来的结果使用校正后p<=0.05值和r<=-0.5值进行筛选。
+
+3.筛选完以后把CAL27和HN6的导出
+```{r}
+
+library(tidyverse)
+miranda_path<-read.delim('miranda_filepath.txt',header=FALSE,check.names=FALSE)
+pita_path<-read.delim('pita_filepath.txt',header=FALSE,check.names=FALSE)
+targetsan_path<-read.delim('targetsan_filepath.txt',header=FALSE,check.names=FALSE)
+
+
+
+
+for (a in seq(1085)) {
+  
+
+tmp_miranda<-miranda_path[a,]
+tmp_pita<-pita_path[a,]
+tmp_targetsan<-targetsan_path[a,]
+
+
+targetsan<- read.delim(tmp_targetsan, check.names=FALSE)
+targetsan<-targetsan[,1:2]
+targetsan$Gene_ID<-sub("range.*$", "",targetsan$Gene_ID)
+targetsan$Gene_ID<-sub(" $", "",targetsan$Gene_ID)
+
+miranda<-read.delim(tmp_miranda,header=FALSE,check.names=FALSE)
+miranda$V1 <- sub("^>>", "", miranda$V1)
+miranda<-miranda[,c(2,1)]
+                 
+pita<-read.delim(tmp_pita,header=FALSE,check.names=FALSE)
+pita<-pita[,1:2]
+pita$V1<-sub("range.*$", "",pita$V1)
+pita$V1<-sub(" $", "",pita$V1)
+
+
+
+#去多余的
+targetsan<- unique(targetsan)
+pita<- unique(pita)
+miranda<-unique(miranda)
+
+colnames(pita)<-colnames(targetsan)[1:2]
+colnames(miranda)<-colnames(targetsan)[1:2]
+
+
+
+
+tmp_miranda<-sub('^/beegfs/liurulong/database/han_filter/seq_data/single_sequnce/miranda_out/miranda_sequence_','',tmp_miranda)
+tmp_miranda<-sub('.fasta.txt$','',tmp_miranda)
+tmp_miranda<-paste(tmp_miranda,'all_out.txt',sep = '')
+
+a<-merge(miranda,pita)
+b<-merge(a,targetsan)
+write.table(b, file =tmp_miranda, sep='\t', row.names = FALSE, quote = FALSE)
+
+}
+
+
+
+
+
+
+all_merge_path<- read.delim('all_merge_out.txt',header=FALSE, check.names=FALSE)
+
+
+
+pb <- txtProgressBar(max=nrow(all_merge_path), style=3)
+tmp1_all_name<-all_merge_path[1,1]
+all_merge<-read.delim(tmp1_all_name, check.names=FALSE)
+for (a in 2:nrow(all_merge_path)) {
+
+tmp2_all_name<-all_merge_path[a,1]
+tmp2_all<-read.delim(tmp2_all_name, check.names=FALSE)
+
+all_merge<-rbind(all_merge,tmp2_all)
+setTxtProgressBar(pb, (pb$getVal()+1))
+}
+
+
+
+all_merge$Gene_ID<-sub('\\..*$','',all_merge$Gene_ID)
+all_merge$Gene_ID<-sub('^hg19_ncbiRefSeq_','',all_merge$Gene_ID)
+all_merge$'symbol'<-mapIds(x = org.Hs.eg.db,keys = all_merge$Gene_ID,column = "SYMBOL",keytype = "REFSEQ")
+
+
+cell_cycle<-read_lines('cell_cycle.txt')
+
+
+all_merge<-all_merge[all_merge$symbol%in%cell_cycle,]
+
+```
+
+```{r}
+
+mirna<-read.delim('mirna_second_abundance.txt', check.names=FALSE)
+
+
+
+trans<-read.csv('tpm.csv',check.names=FALSE)
+rownames(trans)<-trans[,1]
+trans<-trans[,-1]
+
+#提取
+
+trans<-trans[rownames(trans)%in%all_merge$symbol,]
+length(unique(all_merge$symbol))
+
+library(readr)
+meta <- read_csv("meta.CSV")
+
+#rna-seq
+#在HN6部分的结果
+
+
+
+
+
+meta_HN6<-meta$Sample_ID[1:10]
+
+
+
+
+
+
+# 得出HN6的df
+trans<-read.csv('tpm.csv',check.names=FALSE)
+rownames(trans)<-trans[,1]
+trans<-trans[,-1]
+
+seq_data_HN6<-trans[,meta_HN6]
+seq_data_HN6<-seq_data_HN6[cell_cycle,]
+seq_data_HN6<-seq_data_HN6[!is.na(seq_data_HN6),]
+seq_data_HN6<-seq_data_HN6[,c(2:4,6,7,8,9)]
+colnames(seq_data_HN6)<-colnames(mirna)
+
+
+
+seq_data_HN6<-as.data.frame(t(seq_data_HN6))
+mirna<-as.data.frame(t(mirna))
+
+
+all_merge_in_HN6<-all_merge[all_merge$symbol%in%cell_cycle,][,2:3]
+all_merge_in_HN6<-  unique(all_merge_in_HN6)      
+all_merge_in_HN6_gene<-unique(all_merge_in_HN6$symbol)
+HN6_result<-list()
+for (a in 1:length(all_merge_in_HN6_gene)) {
+  result_tmp3<-data.frame()
+  all_merge_in_HN6_gene_mirna<-all_merge_in_HN6%>%filter(symbol==all_merge_in_HN6_gene[a])
+  seq_data_HN6_one_gene<-seq_data_HN6[,all_merge_in_HN6_gene[a],drop=F]
+  seq_data_HN6_mirna<-mirna[,colnames(mirna)%in%all_merge_in_HN6_gene_mirna$miRNA_family_ID,drop=F]
+  for (i in 1:nrow(all_merge_in_HN6_gene_mirna)) {
+    result_tmp2<- cor.test(seq_data_HN6_one_gene[,1],seq_data_HN6_mirna[,i],method='pearson')
+    result_tmp<-data.frame()
+    result_tmp[1,'constrast_a']<-colnames(seq_data_HN6_one_gene)[1]
+    result_tmp[1,'constrast_b']<-colnames(seq_data_HN6_mirna)[i]
+    result_tmp[1, 'r']<-result_tmp2$estimate
+    result_tmp[1,'p']<-result_tmp2$p.value
+    result_tmp3<-rbind(result_tmp3,result_tmp)
+  }
+  result_tmp3$p_adjusted<-p.adjust( result_tmp3$p,'fdr',length( result_tmp3$p))
+  HN6_result[[a]]<-result_tmp3
+
+}
+
+
+
+
+
+
+mirna<-read.delim('mirna_second_abundance.txt', check.names=FALSE)
+
+meta_HaCaT<-meta$Sample_ID[20:28]
+# 得出HaCaT的df
+trans<-read.csv('tpm.csv',check.names=FALSE)
+rownames(trans)<-trans[,1]
+trans<-trans[,-1]
+
+seq_data_HaCaT<-trans[,meta_HaCaT]
+seq_data_HaCaT<-seq_data_HaCaT[cell_cycle,]
+seq_data_HaCaT<-seq_data_HaCaT[!is.na(seq_data_HaCaT),]
+seq_data_HaCaT<-seq_data_HaCaT[,c(2:8)]
+colnames(seq_data_HaCaT)<-colnames(mirna)
+
+
+
+seq_data_HaCaT<-as.data.frame(t(seq_data_HaCaT))
+mirna<-as.data.frame(t(mirna))
+
+
+all_merge_in_HaCaT<-all_merge[all_merge$symbol%in%cell_cycle,][,2:3]
+   all_merge_in_HaCaT              <-  unique(all_merge_in_HaCaT)      
+all_merge_in_HaCaT_gene<-unique(all_merge_in_HaCaT$symbol)
+HaCaT_result<-list()
+for (a in 1:length(all_merge_in_HaCaT_gene)) {
+  result_tmp3<-data.frame()
+  all_merge_in_HaCaT_gene_mirna<-all_merge_in_HaCaT%>%filter(symbol==all_merge_in_HaCaT_gene[a])
+  seq_data_HaCaT_one_gene<-seq_data_HaCaT[,all_merge_in_HaCaT_gene[a],drop=F]
+  seq_data_HaCaT_mirna<-mirna[,colnames(mirna)%in%all_merge_in_HaCaT_gene_mirna$miRNA_family_ID,drop=F]
+  for (i in 1:nrow(all_merge_in_HaCaT_gene_mirna)) {
+    result_tmp2<- cor.test(seq_data_HaCaT_one_gene[,1],seq_data_HaCaT_mirna[,i],method='pearson')
+    result_tmp<-data.frame()
+    result_tmp[1,'constrast_a']<-colnames(seq_data_HaCaT_one_gene)[1]
+    result_tmp[1,'constrast_b']<-colnames(seq_data_HaCaT_mirna)[i]
+    result_tmp[1, 'r']<-result_tmp2$estimate
+    result_tmp[1,'p']<-result_tmp2$p.value
+    result_tmp3<-rbind(result_tmp3,result_tmp)
+  }
+  result_tmp3$p_adjusted<-p.adjust( result_tmp3$p,'fdr',length( result_tmp3$p))
+  HaCaT_result[[a]]<-result_tmp3
+
+}
+
+#CAL27的
+mirna<-read.delim('mirna_second_abundance.txt', check.names=FALSE)
+
+meta_CAL27<-meta$Sample_ID[11:19]
+# 计算每一列的相对丰度
+
+
+# 得出CAL27的df
+trans<-read.csv('tpm.csv',check.names=FALSE)
+rownames(trans)<-trans[,1]
+trans<-trans[,-1]
+
+seq_data_CAL27<-trans[,meta_CAL27]
+seq_data_CAL27<-seq_data_CAL27[cell_cycle,]
+seq_data_CAL27<-seq_data_CAL27[!is.na(seq_data_CAL27),]
+seq_data_CAL27<-seq_data_CAL27[,c(2:4,6,7,8,9)]
+colnames(seq_data_CAL27)<-colnames(mirna)
+
+
+
+seq_data_CAL27<-as.data.frame(t(seq_data_CAL27))
+mirna<-as.data.frame(t(mirna))
+
+
+all_merge_in_CAL27<-all_merge[all_merge$symbol%in%cell_cycle,][,2:3]
+   all_merge_in_CAL27              <-  unique(all_merge_in_CAL27)      
+all_merge_in_CAL27_gene<-unique(all_merge_in_CAL27$symbol)
+CAL27_result<-list()
+for (a in 1:length(all_merge_in_CAL27_gene)) {
+  result_tmp3<-data.frame()
+  all_merge_in_CAL27_gene_mirna<-all_merge_in_CAL27%>%filter(symbol==all_merge_in_CAL27_gene[a])
+  seq_data_CAL27_one_gene<-seq_data_CAL27[,all_merge_in_CAL27_gene[a],drop=F]
+  seq_data_CAL27_mirna<-mirna[,colnames(mirna)%in%all_merge_in_CAL27_gene_mirna$miRNA_family_ID,drop=F]
+  for (i in 1:nrow(all_merge_in_CAL27_gene_mirna)) {
+    result_tmp2<- cor.test(seq_data_CAL27_one_gene[,1],seq_data_CAL27_mirna[,i],method='pearson')
+    result_tmp<-data.frame()
+    result_tmp[1,'constrast_a']<-colnames(seq_data_CAL27_one_gene)[1]
+    result_tmp[1,'constrast_b']<-colnames(seq_data_CAL27_mirna)[i]
+    result_tmp[1, 'r']<-result_tmp2$estimate
+    result_tmp[1,'p']<-result_tmp2$p.value
+    result_tmp3<-rbind(result_tmp3,result_tmp)
+  }
+  result_tmp3$p_adjusted<-p.adjust( result_tmp3$p,'fdr',length( result_tmp3$p))
+  CAL27_result[[a]]<-result_tmp3
+
+}
+
+
+
+
+
+#filter
+
+
+
+
+all_out_filter_HN6<-HN6_result[[1]]%>%filter(r<=-0.5,p_adjusted<=0.05)
+for ( a in 2:length(HN6_result)) {
+  tmp<-HN6_result[[a]]%>%filter(r<=-0.5,p_adjusted<=0.05)
+  all_out_filter_HN6<-rbind(all_out_filter_HN6,tmp)
+}
+
+all_out_filter_CAL27<-CAL27_result[[1]]%>%filter(r<=-0.5,p_adjusted<=0.05)
+for ( a in 2:length(CAL27_result)) {
+  tmp<-CAL27_result[[a]]%>%filter(r<=-0.5,p_adjusted<=0.05)
+all_out_filter_CAL27<-rbind(all_out_filter_CAL27,tmp)
+}
+
+all_out_filter_HaCaT<-HaCaT_result[[1]]%>%filter(r<=-0.5,p_adjusted<=0.05)
+for ( a in 2:length(HaCaT_result)) {
+  tmp<-HaCaT_result[[a]]%>%filter(r<=-0.5,p_adjusted<=0.05)
+all_out_filter_HaCaT<-rbind(all_out_filter_HaCaT,tmp)
+}
+
+
+
+
+
+
+for (i in 1:nrow(all_out_filter_CAL27)) {
+  all_out_filter_CAL27$'RNA_abundance'[i]<-mean(seq_data_CAL27[,all_out_filter_CAL27[i,1]])
+  all_out_filter_CAL27$'miRNA_abundance'[i]<-mean(mirna[,all_out_filter_CAL27[i,2]][1:3])
+
+}
+all_out_filter_CAL27<-all_out_filter_CAL27%>%arrange(desc(miRNA_abundance))
+
+
+for (i in 1:nrow(all_out_filter_HN6)) {
+  all_out_filter_HN6$'RNA_abundance'[i]<-mean(seq_data_HN6[,all_out_filter_HN6[i,1]])
+  all_out_filter_HN6$'miRNA_abundance'[i]<-mean(mirna[,all_out_filter_HN6[i,2]][1:3])
+}
+all_out_filter_HN6<-all_out_filter_HN6%>%arrange(desc(miRNA_abundance))
+
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

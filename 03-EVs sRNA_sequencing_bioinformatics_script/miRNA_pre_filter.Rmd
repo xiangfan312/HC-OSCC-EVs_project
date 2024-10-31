@@ -1,0 +1,685 @@
+1.cd-hit比较特别的是使用-A参数，让比对的两边覆盖度都一样 
+2.其它和之前一样
+
+
+1.对CD-hit的结果文件生成丰度表格，使用edgeR的filterByExpr
+（此函数默认选取最小的组内的样本数量为最小样本数，保留至少在这个数量的样本中有10个或更多序列片段计数的基因。 过滤标准是，以最小对组内样本数为标准，（此例最小组内样本为3），如果有基因在所有样本中表达数（count）小于10的个数超过最小组内样本数，就剔除该基因。）
+2.结果并不好，最后筛选掉OSCC5，原因在于在有监督的筛选下，OSCC5还是和其它很不一样
+3.对长度进行统计，长度正常
+
+
+```{bash}
+for file in *.fasta; do  
+    file_name=$(basename -s _tRNA.fasta "$file")  
+    awk 'NR %  == 0 {sub(/$/, "_$file_name")} 1' "$file" > tmpfile && mv tmpfile "$file"  
+done
+
+
+cat * > all_sequnce.fasta
+nohup cd-hit -i all_sequnce.fasta -o detail_all_sequnce_drep_0.9.fasta -d 1000  -A 0.9  -n 5 -M 250000 -T 28  > nohup.out 2>&1 &
+#结果整理
+grep -E '^>|.*\*$' |awk 'NR%2{printf "%s\t",$0;next;}1'>detail.txt
+#删除...*的尾巴
+  sed 's/\.\.\. \*//' detail.txt  > detail_1.txt #这个是聚类对应的序列名
+  
+  
+  #分组
+grep -E '^>|HC-1' detail_all_sequnce_drep_0.9.fasta.txt >detail_HC1_sequnce_drep_0.9.fasta.txt
+grep -E '^>|HC-2' detail_all_sequnce_drep_0.9.fasta.txt >detail_HC2_sequnce_drep_0.9.fasta.txt
+grep -E '^>|HC-3' detail_all_sequnce_drep_0.9.fasta.txt >detail_HC3_sequnce_drep_0.9.fasta.txt
+
+grep -E '^>|P-1' detail_all_sequnce_drep_0.9.fasta.txt >detail_P1_sequnce_drep_0.9.fasta.txt
+grep -E '^>|P-2' detail_all_sequnce_drep_0.9.fasta.txt >detail_P2_sequnce_drep_0.9.fasta.txt
+grep -E '^>|P-3' detail_all_sequnce_drep_0.9.fasta.txt >detail_P3_sequnce_drep_0.9.fasta.txt
+grep -E '^>|P-4' detail_all_sequnce_drep_0.9.fasta.txt >detail_P4_sequnce_drep_0.9.fasta.txt
+grep -E '^>|P-5' detail_all_sequnce_drep_0.9.fasta.txt >detail_P5_sequnce_drep_0.9.fasta.txt
+#算丰度
+ grep -n '^>C' detail_P1_sequnce_drep_0.9.fasta.txt > abundance_P1.txt
+ sed -i 's/:/\t/g' abundance_P1.txt
+ grep -n '^>C' detail_P2_sequnce_drep_0.9.fasta.txt > abundance_P2.txt
+ sed -i 's/:/\t/g' abundance_P2.txt
+ grep -n '^>C' detail_P3_sequnce_drep_0.9.fasta.txt > abundance_P3.txt
+ sed -i 's/:/\t/g' abundance_P3.txt
+ grep -n '^>C' detail_P4_sequnce_drep_0.9.fasta.txt > abundance_P4.txt
+ sed -i 's/:/\t/g' abundance_P4.txt
+ grep -n '^>C' detail_P5_sequnce_drep_0.9.fasta.txt > abundance_P5.txt
+ sed -i 's/:/\t/g' abundance_P5.txt
+ 
+ 
+ 
+ grep -n '^>C' detail_HC1_sequnce_drep_0.9.fasta.txt > abundance_HC1.txt
+ sed -i 's/:/\t/g' abundance_HC1.txt
+  grep -n '^>C' detail_HC2_sequnce_drep_0.9.fasta.txt > abundance_HC2.txt
+ sed -i 's/:/\t/g' abundance_HC2.txt
+  grep -n '^>C' detail_HC3_sequnce_drep_0.9.fasta.txt > abundance_HC3.txt
+ sed -i 's/:/\t/g' abundance_HC3.txt
+ 
+ 
+
+```
+
+```{bash}
+
+#miranda结果提取
+
+for file in sequence_*results.fasta ; do
+    grep '>>' $file > miranda_$file.txt
+done
+
+
+
+
+grep '>>' out.txt > miranda_result.txt
+
+#PITA的
+
+while read line; do
+    awk -F'\t' '$13 <= -10' $line >filter_$line.txt
+done < tmp.txt
+
+
+
+for line in sequence_*/sequence_*results.tab; do  
+    # Extract the base name from the line to create a correct output file name  
+    base_name=$(basename $line)  
+    awk -F'\t' '$13 <= -10' "$line" > "filter_${base_name}.txt"  
+done
+
+
+awk -F'\t' '$13 <= -10' PITA >> PITA.txt
+
+
+```
+
+```{r}
+
+#聚类群的代表序列名
+detail<-read.table('../detail_1.txt', sep="\t")
+detail<-detail[,-2]
+detail$V3<-sub("^.*aa,", "",detail$V3)
+detail$V3<-sub(" ", "",detail$V3)
+
+
+library(tidyverse)
+#HC1的abundance
+##最后一行是因为没有行可以算所以手动算的
+HC1_abundance<-read.table('../abundance_HC1.txt', sep="\t")
+HC1_abundance$abundance <- c(diff(HC1_abundance[,1]), NA)
+HC1_abundance$classification<-'HC1'
+HC1_abundance[nrow(HC1_abundance),3]<-1
+
+HC2_abundance<-read.table('../abundance_HC2.txt', sep="\t")
+HC2_abundance$abundance <- c(diff(HC2_abundance[,1]), NA)
+HC2_abundance$classification<-'HC2'
+HC2_abundance[nrow(HC2_abundance),3]<-1
+
+HC3_abundance<-read.table('../abundance_HC3.txt', sep="\t")
+HC3_abundance$abundance <- c(diff(HC3_abundance[,1]), NA)
+HC3_abundance$classification<-'HC3'
+HC3_abundance[nrow(HC3_abundance),3]<-1
+
+
+HC1_abundance$abundance<-HC1_abundance$abundance-1
+HC2_abundance$abundance<-HC2_abundance$abundance-1
+HC3_abundance$abundance<-HC3_abundance$abundance-1
+
+
+#P的abundance
+P1_abundance<-read.table('../abundance_P1.txt', sep="\t")
+P1_abundance$abundance <- c(diff(P1_abundance[,1]), NA)
+P1_abundance$classification<-'P1'
+P1_abundance[nrow(P1_abundance),3]<-2
+
+P2_abundance<-read.table('../abundance_P2.txt', sep="\t")
+P2_abundance$abundance <- c(diff(P2_abundance[,1]), NA)
+P2_abundance$classification<-'P2'
+P2_abundance[nrow(P2_abundance),3]<-1
+
+
+P3_abundance<-read.table('../abundance_P3.txt', sep="\t")
+P3_abundance$abundance <- c(diff(P3_abundance[,1]), NA)
+P3_abundance$classification<-'P3'
+P3_abundance[nrow(P3_abundance),3]<-1
+
+P4_abundance<-read.table('../abundance_P4.txt', sep="\t")
+P4_abundance$abundance <- c(diff(P4_abundance[,1]), NA)
+P4_abundance$classification<-'P4'
+P4_abundance[nrow(P4_abundance),3]<-1
+
+P5_abundance<-read.table('../abundance_P5.txt', sep="\t")
+P5_abundance$abundance <- c(diff(P5_abundance[,1]), NA)
+P5_abundance$classification<-'P5'
+P5_abundance[nrow(P5_abundance),3]<-2
+
+
+
+#合并
+
+all_test<-merge(HC1_abundance,HC2_abundance,by = 'V2')
+all_test<-all_test[,-c(2,5)]
+all_test<-merge(all_test,HC3_abundance,by='V2')
+all_test<-all_test[,-6]
+
+
+colnames(P1_abundance)[3]<-'abundance_P1'
+colnames(P2_abundance)[3]<-'abundance_P2'
+colnames(P3_abundance)[3]<-'abundance_P3'
+colnames(P4_abundance)[3]<-'abundance_P4'
+colnames(P5_abundance)[3]<-'abundance_P5'
+colnames(P1_abundance)[4]<-'P1'
+colnames(P2_abundance)[4]<-'P2'
+colnames(P3_abundance)[4]<-'P3'
+colnames(P4_abundance)[4]<-'P4'
+colnames(P5_abundance)[4]<-'P5'
+P1_abundance<-P1_abundance[,-1]
+P2_abundance<-P2_abundance[,-1]
+P3_abundance<-P3_abundance[,-1]
+P4_abundance<-P4_abundance[,-1]
+P5_abundance<-P5_abundance[,-1]
+
+
+P1_abundance$abundance_P1<-P1_abundance$abundance_P1-1
+P2_abundance$abundance_P2<-P2_abundance$abundance_P2-1
+P3_abundance$abundance_P3<-P3_abundance$abundance_P3-1
+P4_abundance$abundance_P4<-P4_abundance$abundance_P4-1
+P5_abundance$abundance_P5<-P5_abundance$abundance_P5-1
+
+#合并和改列名
+all_test_P<-merge(P1_abundance,P2_abundance,by='V2')
+all_test_P<-merge(all_test_P,P3_abundance,by='V2')
+all_test_P<-merge(all_test_P,P4_abundance,by='V2')
+all_test_P<-merge(all_test_P,P5_abundance,by='V2')
+
+
+
+HC_P<-inner_join(all_test,all_test_P,by='V2')
+colnames(HC_P)[2]<-'abundance_HC1'
+HC_P<-HC_P[,-c(3,5,7)]
+colnames(HC_P)[3:4]<-c('abundance_HC2','abundance_HC3')
+HC_P<-HC_P[,-c(6,8,10,12,14)]
+
+HC_P<-HC_P %>%
+  mutate(across(-V2, ~ round(.x / sum(.x), 10)))
+
+row.names(HC_P)<-HC_P[,1]
+HC_P<-HC_P[,-1]
+
+colnames(HC_P)<-c('HC_1','HC_2','HC_3','OSCC1','OSCC2','OSCC3','OSCC4','OSCC5')
+
+
+
+
+
+```
+
+```{r}
+
+
+library(edgeR)
+
+
+HC_P<-inner_join(all_test,all_test_P,by='V2')
+colnames(HC_P)[2]<-'abundance_HC1'
+HC_P<-HC_P[,-c(3,5,7)]
+colnames(HC_P)[3:4]<-c('abundance_HC2','abundance_HC3')
+HC_P<-HC_P[,-c(6,8,10,12,14)]
+row.names(HC_P)<-HC_P[,1]
+HC_P<-HC_P[,-1]
+group <- c(rep('HC', 3), rep('P', 5))
+group <- factor(group, levels = c("HC", "P"))
+d <- DGEList(counts = HC_P, group = group)
+keep <- filterByExpr(d)
+
+
+
+```
+
+
+```{r}
+
+
+#筛选后的热图
+library(pheatmap)
+HC_P<-inner_join(all_test,all_test_P,by='V2')
+colnames(HC_P)[2]<-'abundance_HC1'
+HC_P<-HC_P[,-c(3,5,7)]
+colnames(HC_P)[3:4]<-c('abundance_HC2','abundance_HC3')
+HC_P<-HC_P[,-c(6,8,10,12,14)]
+
+HC_P<-HC_P %>%
+  mutate(across(-V2, ~ round(.x / sum(.x), 10)))
+
+row.names(HC_P)<-HC_P[,1]
+HC_P<-HC_P[,-1]
+
+HC_P_heatmap<-HC_P[keep,]
+
+for (i in 1:ncol(HC_P_heatmap)) {
+  col_values <- HC_P_heatmap[, i]
+  min_value <- min(col_values[col_values != 0])/10
+  HC_P_heatmap[col_values == 0, i] <- min_value
+}
+HC_P_heatmap<-log10(HC_P_heatmap)
+
+
+
+
+colnames(HC_P_heatmap)<-c('HC1','HC2','HC3','OSCC1','OSCC2','OSCC3','OSCC4','OSCC5')
+pheatmap(HC_P_heatmap,border = F,show_rownames = F,angle_col=0)
+
+HC_P<-HC_P[keep,]
+
+#改名
+colnames(HC_P)<-c('HC1','HC2','HC3','OSCC1','OSCC2','OSCC3','OSCC4','OSCC5')
+HC_P<-as.data.frame(t(HC_P))
+HC_P.pca <- prcomp(HC_P)
+
+summ<-summary(HC_P.pca)
+xlab<-paste0("PC1(",round(summ$importance[2,1]*100,2),"%)")
+
+ylab<-paste0("PC2(",round(summ$importance[2,2]*100,2),"%)")
+
+pca.scores <- as.data.frame(HC_P.pca$x)
+pca.scores$'Group'<-c(rep('HC',3),rep('OSCC',5))
+
+
+tmp<-rownames(pca.scores)
+
+tmp2<-rownames(pca.scores)
+tmp[c(6)]<-''
+
+tmp2[-c(6)]<-''
+ggplot(pca.scores,aes(PC1,PC2,col=Group,shape=Group)) + 
+  geom_point(size=3)+ 
+  geom_text(aes(label=tmp,vjust = -0.7,show.legend = F)) + 
+  geom_text(aes(label=tmp2,vjust = 1.3,hjust=1.6,show.legend = F)) + 
+  geom_hline(yintercept = 0,lty=2,col="red") + 
+  geom_vline(xintercept = 0,lty=2,col="blue",lwd=1) +
+  theme_bw() +  
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text = element_text(size = 12))+ 
+ 
+  labs(x=xlab,y=ylab,title = "PCA analysis")
+
+
+```
+
+
+```{r}
+library(edgeR)
+
+HC_P<-inner_join(all_test,all_test_P,by='V2')
+colnames(HC_P)[2]<-'abundance_HC1'
+HC_P<-HC_P[,-c(3,5,7)]
+colnames(HC_P)[3:4]<-c('abundance_HC2','abundance_HC3')
+HC_P<-HC_P[,-c(6,8,10,12,14)]
+row.names(HC_P)<-HC_P[,1]
+HC_P<-HC_P[,-1]
+
+group <- c(rep('HC', 3), rep('P', 5))
+group <- factor(group, levels = c("HC", "P"))
+d <- DGEList(counts = HC_P, group = group)
+keep <- filterByExpr(d)
+d <- d[keep, , keep.lib.sizes = FALSE]
+d$samples$lib.size <- colSums(d$counts)
+d <- calcNormFactors(d)
+
+
+
+d <- calcNormFactors(d)
+dge = d
+design <- model.matrix(~0 + factor(group))
+rownames(design) <- colnames(dge)
+colnames(design) <- levels(factor(group))
+
+
+# 估计数据的离散度 —— common离散度、trended离散度、tagwise离散度
+dge <- estimateGLMCommonDisp(dge, design)
+dge <- estimateGLMTrendedDisp(dge, design)
+dge <- estimateGLMTagwiseDisp(dge, design)
+
+# 在估计的模型基础上进行 广义线性模型 (GLM) 拟合
+fit <- glmFit(dge, design)
+
+lrt <- glmLRT(fit, contrast = c(-1, 1))
+
+# 从 LRT 计算结果中获取前 nrow(dge) 个顶部差异表达基因
+nrDEG <- topTags(lrt, n = nrow(dge))
+
+# 将差异表达基因结果转换为数据框形式
+DEG_edgeR <- as.data.frame(nrDEG)
+
+
+
+
+
+logFC = 2.5
+P.Value = 0.01
+k1 <- (DEG_edgeR$PValue < P.Value) & (DEG_edgeR$logFC < -logFC)
+k2 <- (DEG_edgeR$PValue < P.Value) & (DEG_edgeR$logFC > logFC)
+DEG_edgeR <- mutate(DEG_edgeR, change = ifelse(k1, "down", ifelse(k2, "up", "stable")))
+
+
+deg_opt <- DEG_edgeR %>% filter(DEG_edgeR$change != "stable")
+HC_P_heatmap <- HC_P %>% filter(rownames(HC_P) %in% rownames(deg_opt))
+
+
+
+
+HC_P<-inner_join(all_test,all_test_P,by='V2')
+colnames(HC_P)[2]<-'abundance_HC1'
+HC_P<-HC_P[,-c(3,5,7)]
+colnames(HC_P)[3:4]<-c('abundance_HC2','abundance_HC3')
+HC_P<-HC_P[,-c(6,8,10,12,14)]
+
+
+
+
+#算相对丰度
+
+HC_P<-HC_P %>%
+  mutate(across(-V2, ~ round(.x / sum(.x), 10)))
+
+row.names(HC_P)<-HC_P[,1]
+HC_P<-HC_P[,-1]
+HC_P_heatmap<-HC_P
+
+
+
+HC_P_heatmap_up<-deg_opt%>%filter(change=='up')
+HC_P_heatmap_up<-rownames(HC_P_heatmap_up)
+HC_P_heatmap_up<-HC_P[HC_P_heatmap_up,]
+
+
+HC_P_heatmap_down<-deg_opt%>%filter(change=='down')
+HC_P_heatmap_down<-rownames(HC_P_heatmap_down)
+HC_P_heatmap_down<-HC_P[HC_P_heatmap_down,]
+HC_P_heatmap<-rbind(HC_P_heatmap_down,HC_P_heatmap_up)
+
+#排序
+HC_P_heatmap_up$sum<- apply(HC_P_heatmap_up, 1, sum)
+HC_P_heatmap_up<-HC_P_heatmap_up%>%arrange(sum)
+HC_P_heatmap_up<-HC_P_heatmap_up[,-8]
+
+HC_P_heatmap_down$sum<- apply(HC_P_heatmap_down, 1, sum)
+HC_P_heatmap_down<-HC_P_heatmap_down%>%arrange(sum)
+HC_P_heatmap_down<-HC_P_heatmap_down[,-8]
+
+
+HC_P_heatmap<-rbind(HC_P_heatmap_down,HC_P_heatmap_up)
+for (i in 1:ncol(HC_P_heatmap)) {
+  col_values <- HC_P_heatmap[, i]
+  min_value <- min(col_values[col_values != 0])/10
+  HC_P_heatmap[col_values == 0, i] <- min_value
+}
+HC_P_heatmap<-log10(HC_P_heatmap)
+colnames(HC_P_heatmap)<-c('HC1','HC2','HC3','OSCC1','OSCC2','OSCC3','OSCC4','OSCC5')
+
+annotation_col<-data.frame(sample=c('HC1','HC2','HC3','OSCC1','OSCC2','OSCC3','OSCC4','OSCC5'),group=c('HC','HC','HC','OSCC','OSCC','OSCC','OSCC','OSCC'))
+rownames(annotation_col)<-annotation_col$sample
+annotation_col<-annotation_col[,-1,drop=F]
+#画图
+
+##热图
+ggplot(data = DEG_edgeR, 
+            aes(x = logFC, 
+                y = -log10(PValue))) +
+  geom_point(alpha = 0.4, size = 3.5, 
+             aes(color = change)) +
+  ylab("-log10(Pvalue)")+
+  scale_color_manual(values = c("blue4", "grey", "red3"))+
+  geom_vline(xintercept = c(-logFC, logFC), lty = 4, col = "black", lwd = 0.8) +
+  geom_hline(yintercept = -log10(P.Value), lty = 4, col = "black", lwd = 0.8) +
+  theme_bw()
+
+pheatmap(HC_P_heatmap, show_rownames = F,
+               annotation_col = annotation_col,angle_col=0)
+
+
+#这个图是按丰度来排的
+pheatmap(HC_P_heatmap, show_rownames = F,
+               cluster_cols = F,cluster_rows = F,
+               annotation_col = annotation_col,angle_col=0)
+
+
+```
+
+```{r}
+
+library(edgeR)
+
+HC_P<-inner_join(all_test,all_test_P,by='V2')
+colnames(HC_P)[2]<-'abundance_HC1'
+HC_P<-HC_P[,-c(3,5,7)]
+colnames(HC_P)[3:4]<-c('abundance_HC2','abundance_HC3')
+HC_P<-HC_P[,-c(6,8,10,12,14)]
+row.names(HC_P)<-HC_P[,1]
+HC_P<-HC_P[,-1]
+HC_P<-HC_P[,-8]
+group <- c(rep('HC', 3), rep('P', 4))
+group <- factor(group, levels = c("HC", "P"))
+d <- DGEList(counts = HC_P, group = group)
+keep <- filterByExpr(d)
+d <- d[keep, , keep.lib.sizes = FALSE]
+d$samples$lib.size <- colSums(d$counts)
+d <- calcNormFactors(d)
+
+
+
+d <- calcNormFactors(d)
+dge = d
+design <- model.matrix(~0 + factor(group))
+rownames(design) <- colnames(dge)
+colnames(design) <- levels(factor(group))
+
+
+# 估计数据的离散度 —— common离散度、trended离散度、tagwise离散度
+dge <- estimateGLMCommonDisp(dge, design)
+dge <- estimateGLMTrendedDisp(dge, design)
+dge <- estimateGLMTagwiseDisp(dge, design)
+
+# 在估计的模型基础上进行 广义线性模型 (GLM) 拟合
+fit <- glmFit(dge, design)
+
+lrt <- glmLRT(fit, contrast = c(-1, 1))
+
+# 从 LRT 计算结果中获取前 nrow(dge) 个顶部差异表达基因
+nrDEG <- topTags(lrt, n = nrow(dge))
+
+# 将差异表达基因结果转换为数据框形式
+DEG_edgeR <- as.data.frame(nrDEG)
+
+
+
+
+
+logFC = 2.5
+P.Value = 0.01
+k1 <- (DEG_edgeR$PValue < P.Value) & (DEG_edgeR$logFC < -logFC)
+k2 <- (DEG_edgeR$PValue < P.Value) & (DEG_edgeR$logFC > logFC)
+DEG_edgeR <- mutate(DEG_edgeR, change = ifelse(k1, "down", ifelse(k2, "up", "stable")))
+
+
+deg_opt <- DEG_edgeR %>% filter(DEG_edgeR$change != "stable")
+HC_P_heatmap <- HC_P %>% filter(rownames(HC_P) %in% rownames(deg_opt))
+
+
+
+
+HC_P<-inner_join(all_test,all_test_P,by='V2')
+colnames(HC_P)[2]<-'abundance_HC1'
+HC_P<-HC_P[,-c(3,5,7)]
+colnames(HC_P)[3:4]<-c('abundance_HC2','abundance_HC3')
+HC_P<-HC_P[,-c(6,8,10,12,14)]
+
+
+
+
+#算相对丰度
+
+HC_P<-HC_P %>%
+  mutate(across(-V2, ~ round(.x / sum(.x), 10)))
+
+row.names(HC_P)<-HC_P[,1]
+HC_P<-HC_P[,-1]
+HC_P_heatmap<-HC_P
+
+HC_P<-HC_P[,-8]
+
+
+HC_P_heatmap_up<-deg_opt%>%filter(change=='up')
+HC_P_heatmap_up<-rownames(HC_P_heatmap_up)
+HC_P_heatmap_up<-HC_P[HC_P_heatmap_up,]
+
+
+HC_P_heatmap_down<-deg_opt%>%filter(change=='down')
+HC_P_heatmap_down<-rownames(HC_P_heatmap_down)
+HC_P_heatmap_down<-HC_P[HC_P_heatmap_down,]
+HC_P_heatmap<-rbind(HC_P_heatmap_down,HC_P_heatmap_up)
+
+#排序
+HC_P_heatmap_up$sum<- apply(HC_P_heatmap_up, 1, sum)
+HC_P_heatmap_up<-HC_P_heatmap_up%>%arrange(sum)
+HC_P_heatmap_up<-HC_P_heatmap_up[,-8]
+
+HC_P_heatmap_down$sum<- apply(HC_P_heatmap_down, 1, sum)
+HC_P_heatmap_down<-HC_P_heatmap_down%>%arrange(sum)
+HC_P_heatmap_down<-HC_P_heatmap_down[,-8]
+
+
+HC_P_heatmap<-rbind(HC_P_heatmap_down,HC_P_heatmap_up)
+for (i in 1:ncol(HC_P_heatmap)) {
+  col_values <- HC_P_heatmap[, i]
+  min_value <- min(col_values[col_values != 0])/10
+  HC_P_heatmap[col_values == 0, i] <- min_value
+}
+HC_P_heatmap<-log10(HC_P_heatmap)
+colnames(HC_P_heatmap)<-c('HC1','HC2','HC3','OSCC1','OSCC2','OSCC3','OSCC4')
+
+annotation_col<-data.frame(sample=c('HC1','HC2','HC3','OSCC1','OSCC2','OSCC3','OSCC4'),group=c('HC','HC','HC','OSCC','OSCC','OSCC','OSCC'))
+rownames(annotation_col)<-annotation_col$sample
+annotation_col<-annotation_col[,-1,drop=F]
+#画图
+
+##热图
+ggplot(data = DEG_edgeR, 
+            aes(x = logFC, 
+                y = -log10(PValue))) +
+  geom_point(alpha = 0.4, size = 3.5, 
+             aes(color = change)) +
+  ylab("-log10(Pvalue)")+
+  scale_color_manual(values = c("blue4", "grey", "red3"))+
+  geom_vline(xintercept = c(-logFC, logFC), lty = 4, col = "black", lwd = 0.8) +
+  geom_hline(yintercept = -log10(P.Value), lty = 4, col = "black", lwd = 0.8) +
+  theme_bw()
+
+pheatmap(HC_P_heatmap, show_rownames = F,
+               annotation_col = annotation_col,angle_col=0)
+
+
+#这个图是按丰度来排的
+pheatmap(HC_P_heatmap, show_rownames = F,
+               cluster_cols = F,cluster_rows = F,
+               annotation_col = annotation_col,angle_col=0)
+
+
+```
+
+```{r}
+
+
+
+
+#聚类群的代表序列名
+detail<-read.table('../detail_1.txt', sep="\t")
+detail<-detail[,-2]
+detail$V3<-sub("^.*aa,", "",detail$V3)
+detail$V3<-sub(" ", "",detail$V3)
+
+tmp<-rownames(HC_P_heatmap)
+for (a in 1:nrow(HC_P)) {
+  tmp[a]<-detail[which(detail$V1==tmp[a]),2]
+  
+}
+write_lines(tmp,'hc_length_dif.txt')
+
+
+
+
+
+#聚类群的代表序列名
+detail<-read.table('../tRNA_seq/detail_1.txt', sep="\t")
+detail<-detail[,-2]
+detail$V3<-sub("^.*aa,", "",detail$V3)
+detail$V3<-sub(" ", "",detail$V3)
+
+tmp<-rownames(HC_P_heatmap)
+for (a in 1:nrow(HC_P_heatmap)) {
+  tmp[a]<-detail[which(detail$V1==tmp[a]),2]
+  
+}
+tmp<-sub('^>','',tmp)
+rownames(HC_P_heatmap)<-tmp
+write.table(HC_P_heatmap,'mirna_second_abundance.txt',sep = '\t',row.names = F,quote = F)
+  
+```
+HC的长度分布图
+
+```{r}
+length<-read.table('../hc_length_result.txt', sep="\t")
+length$V1<-length$V1-1
+
+length<-as.data.frame(table(length$V1))
+
+ggplot(length,mapping = aes(x=Var1,y=Freq,group=1))+
+  geom_line()+ 
+  xlab("Sequence length(bp)")+
+  theme(legend.title = element_text(size=20), #change legend title font size
+        legend.text = element_text(size=18))
+
+```
+
+
+
+```{r}
+
+HC_P<-inner_join(all_test,all_test_P,by='V2')
+colnames(HC_P)[2]<-'abundance_HC1'
+HC_P<-HC_P[,-c(3,5,7)]
+colnames(HC_P)[3:4]<-c('abundance_HC2','abundance_HC3')
+HC_P<-HC_P[,-c(6,8,10,12,14)]
+row.names(HC_P)<-HC_P[,1]
+HC_P<-HC_P[,-1]
+HC_P<-HC_P[,-8]
+HC_P<-HC_P[,1:3]
+HC_P$'mean'<-rowMeans(HC_P)
+
+
+HC_P<-rownames_to_column(HC_P)
+HC_P<-HC_P%>%filter(mean>1)
+
+HC_P<-HC_P%>%gather(key = 'sample',value = 'count',-c(mean,rowname))
+
+ggplot(data=HC_P,aes(count,..density..,color=sample))+
+geom_density(size=1.5)+
+   theme(
+     
+   )
+
+
+p<-ggplot(data=HC_P,aes(count)) +
+geom_histogram(color='white',binwidth = 4000)+
+  scale_x_continuous(breaks = seq(0, 200000, by = 4000))+
+  theme(axis.text = element_text(size = 12),axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(y='freq')
+
+gg.gap(plot = p,  
+       segments = list(c(30, 600),c(2000,100000)), 
+       ylim = c(0, 1100000), tick_width = c(15, 100,100000))
+
+```
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
